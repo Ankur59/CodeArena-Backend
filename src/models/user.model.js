@@ -24,10 +24,14 @@ const userSchema = new Schema({
         trim: true,
         lowercase: true
     },
-
+    password: {
+        type: String,
+        required: true
+    },
+    // On first time register ^^
+    
     avatar: {
         type: String,
-        required: true,
     },
     rank: {
         type: String,
@@ -40,10 +44,6 @@ const userSchema = new Schema({
     },
     location: {
         type: String
-    },
-    password: {
-        type: String,
-        required: true
     },
     refreshtoken: {
         type: String
