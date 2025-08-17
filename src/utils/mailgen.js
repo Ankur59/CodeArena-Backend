@@ -1,6 +1,8 @@
 import Mailgen from "mailgen"
-import nodemailer from "nodemailer  "
+import nodemailer from "nodemailer"
 
+
+// Need to understand this any how !!!
 const sendEmail = async (options) => {
 
     const mailGenarator = new Mailgen({
@@ -10,13 +12,13 @@ const sendEmail = async (options) => {
             link: "https://taskmanagelink.com"
         }
     })
-    
+
     const emailText = mailGenarator.generatePlaintext(options.mailgenContent)
     const emailHtml = mailGenarator.generate(options.mailgenContent)
 
-    const transporter = nodemailer.createTransport = ({
+    const transporter = nodemailer.createTransport({
         host: process.env.MAIL_TRAP_HOST,
-        port: process.env.MAIL_TRAP_USER,
+        port: process.env.MAIL_TRAP_PORT,
         auth: {
             user: process.env.MAIL_TRAP_USER,
             pass: process.env.MAIL_TRAP_PASS
@@ -24,13 +26,13 @@ const sendEmail = async (options) => {
     })
     const mail = {
         from: "mail.CodeArena@example.com",
-        to: options.mail,
+        to: options.email,
         subject: options.subject,
         text: emailText,
         html: emailHtml,
     }
     try {
-        transporter.sendMail(mail)
+        await transporter.sendMail(mail)
     } catch (error) {
         console.error("Error in sending mail", error)
     }

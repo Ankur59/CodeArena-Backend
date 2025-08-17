@@ -5,15 +5,19 @@ import { boolean, string } from "zod";
 import crypto from "crypto"
 
 const userSchema = new Schema({
-    username: {
+    userName: {
         type: String,
-        required: true,
-        unique: true,
+        // unique: true,  uncomment this after creating a uniques username in the register controller
         lowecase: true,
         trim: true,
         index: true
     },
-    fullname: {
+    firstName: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    lastName: {
         type: String,
         required: true,
         trim: true,
@@ -46,22 +50,34 @@ const userSchema = new Schema({
     location: {
         type: String
     },
-    refreshtoken: {
+
+    // Security 
+    refreshToken: {
         type: String
     },
-    isVerified: {
+    isEmailVerified: {
         type: boolean,
         default: false
     },
-    verificationcode: {
+    emailVerificationToken: {
         type: String
-    }
+    },
+    emailVerificationExpiry: {
+        type: Date
+    },
+    forgotPasswordToken: {
+        type: String
+    },
+    forgotPasswordExpiry: {
+        type: Date
+    },
 }, { timestamps: true })
 
 
 userSchema.pre("save", async function (next) {
     if (this.isModified("password")) {
-        this.password = bcrypt.hash(this.password, 10)
+        this.password = await bcrypt.hash(this.password, 10)
+        console.log("here", this.password)
         next()
     }
     else {
@@ -73,20 +89,24 @@ userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 
+// Sent to client
 userSchema.methods.generateAccessToken = function () {
 
     return jwt.sign({ _id: this._id, email: this.email, username: this.username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRY })
 }
 
+// Stored in server
 userSchema.methods.generateRefreshToken = async function () {
     return jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRY })
 }
 
-userSchema.methods.generateTemporaryToken = async function () {
+userSchema.methods.generateTemporaryToken = function () {
     const unHashedToken = crypto.randomBytes(20).toString("hex")
     const hashedToken = crypto.createHash("sha256").update(unHashedToken).digest("hex")
     const tokenExpiry = Date.now() + (20 * 60 * 1000)
+    console.log("hashed token", unHashedToken)
 
     return { unHashedToken, hashedToken, tokenExpiry }
 }
+
 export const User = new model('users', userSchema)
