@@ -1,12 +1,9 @@
 import express from "express"
 import { asyncHandler } from "../utils/asyncHandler.js"
+import { handleRegister } from "../controllers/user.controller.js"
 
 const router = express.Router()
 
-router.get("/register", asyncHandler(async (req, res) => {
-    res.status(200).json({
-        success: "true  "
-    })
-}))
+router.route("/register").post(handleRegister)
 
 export default router

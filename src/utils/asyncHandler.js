@@ -1,5 +1,5 @@
 export const asyncHandler = (someFunc) => async (req, res, next) => {
-    try {
+  try {
         await someFunc(req, res, next)
     } catch (error) {
         console.log(error)
