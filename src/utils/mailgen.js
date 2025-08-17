@@ -1,3 +1,41 @@
+import Mailgen from "mailgen"
+import nodemailer from "nodemailer  "
+
+const sendEmail = async (options) => {
+
+    const mailGenarator = new Mailgen({
+        theme: "default",
+        product: {
+            name: "CodeArena",
+            link: "https://taskmanagelink.com"
+        }
+    })
+    
+    const emailText = mailGenarator.generatePlaintext(options.mailgenContent)
+    const emailHtml = mailGenarator.generate(options.mailgenContent)
+
+    const transporter = nodemailer.createTransport = ({
+        host: process.env.MAIL_TRAP_HOST,
+        port: process.env.MAIL_TRAP_USER,
+        auth: {
+            user: process.env.MAIL_TRAP_USER,
+            pass: process.env.MAIL_TRAP_PASS
+        }
+    })
+    const mail = {
+        from: "mail.CodeArena@example.com",
+        to: options.mail,
+        subject: options.subject,
+        text: emailText,
+        html: emailHtml,
+    }
+    try {
+        transporter.sendMail(mail)
+    } catch (error) {
+        console.error("Error in sending mail", error)
+    }
+}
+
 const verificatioMailContent = (username, verificationUrl) => {
     return {
         body: {
@@ -38,4 +76,6 @@ const forgotPasswordMailContent = (username, passwordResetUrl) => {
         }
     }
 }
-export { forgotPasswordMailContent, verificatioMailContent }
+
+
+export { forgotPasswordMailContent, verificatioMailContent, sendEmail }

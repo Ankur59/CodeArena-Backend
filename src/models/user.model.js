@@ -82,7 +82,7 @@ userSchema.methods.generateRefreshToken = async function () {
     return jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRY })
 }
 
-userSchema.meathods.generateTemporaryToken = async function () {
+userSchema.methods.generateTemporaryToken = async function () {
     const unHashedToken = crypto.randomBytes(20).toString("hex")
     const hashedToken = crypto.createHash("sha256").update(unHashedToken).digest("hex")
     const tokenExpiry = Date.now() + (20 * 60 * 1000)
