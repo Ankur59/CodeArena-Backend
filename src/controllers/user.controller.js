@@ -5,7 +5,6 @@ import { User } from "../models/user.model.js";
 import { sendEmail, verificatioMailContent } from "../utils/mailgen.js";
 
 
-
 const generateAccessandRefreshToken = async (userId) => {
     try {
         const user = await User.findById(userId)
@@ -41,9 +40,6 @@ const handleRegister = asyncHandler(async (req, res) => {
     })
 
     const { unHashedToken, hashedToken, tokenExpiry } = user.generateTemporaryToken()
-
-    console.log("unhashed", unHashedToken)
-    console.log("hashed", hashedToken)
 
     user.emailVerificationToken = hashedToken,
         user.emailVerificationExpiry = tokenExpiry
