@@ -3,6 +3,8 @@ import ApiErrors from "../utils/ApiErrors.js";
 import ApiResponse from "../utils/ApiResponse.js"
 import { User } from "../models/user.model.js";
 import { sendEmail, verificatioMailContent } from "../utils/mailgen.js";
+import crypto from "crypto"
+import { error } from "console";
 
 
 const generateAccessandRefreshToken = async (userId) => {
@@ -49,13 +51,13 @@ const handleRegister = asyncHandler(async (req, res) => {
     await sendEmail({
         email: user?.email,
         subject: "Please verify your email",
-        mailgenContent: verificatioMailContent(user?.firstName, `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`)
+        mailgenContent: verificatioMailContent(user?.firstName, `http://localhost:5173/verify-email/${unHashedToken}`)
     })
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry")
 
     if (!createdUser) {
-        throw new ApiErrors(500, "Unable to fetch user details",)
+        throw new ApiErrors(500, "Unable to fetch user details")
     }
 
     return res.status(201).json(
@@ -64,4 +66,39 @@ const handleRegister = asyncHandler(async (req, res) => {
 })
 
 
-export { handleRegister }
+
+const handlerVerify = asyncHandler(async (req, res) => {
+    const time = Date.now()
+    const token = req.params.id
+    if (!token) {
+        throw new ApiErrors(400, "No Token provided")
+    }
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+    const userData = await User.findOne({ emailVerificationToken: hashedToken, emailVerificationExpiry: { $gt: time } })
+
+    if (!userData) {
+        throw new ApiErrors(401, "Invalid Token Provided")
+    }
+    res.status(200).json(new ApiResponse(200, "Email Verification Complete"))
+})
+
+
+export { handleRegister, handlerVerify }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}
+// http://localhost:8000/api/v1/verify-email/<token>

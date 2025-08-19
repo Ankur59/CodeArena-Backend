@@ -1,7 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
-import { boolean, string } from "zod";
 import crypto from "crypto"
 
 const userSchema = new Schema({
@@ -56,7 +55,7 @@ const userSchema = new Schema({
         type: String
     },
     isEmailVerified: {
-        type: boolean,
+        type: Boolean,
         default: false
     },
     emailVerificationToken: {

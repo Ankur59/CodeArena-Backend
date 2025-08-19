@@ -1,4 +1,4 @@
-import ApiErrors from "../../utils/ApiErrors";
+import ApiErrors from "../../utils/ApiErrors.js";
 
 
 
