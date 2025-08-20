@@ -4,7 +4,7 @@ import ApiResponse from "../utils/ApiResponse.js"
 import { User } from "../models/user.model.js";
 import { sendEmail, verificatioMailContent } from "../utils/mailgen.js";
 import crypto from "crypto"
-import { error } from "console";
+
 
 
 const generateAccessandRefreshToken = async (userId) => {
@@ -74,7 +74,7 @@ const handlerVerify = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "No Token provided")
     }
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
-    const userData = await User.findOne({ emailVerificationToken: hashedToken, emailVerificationExpiry: { $gt: time } })
+    const userData = await User.findOne({ emailVerificationToken: hashedToken })
 
     if (!userData) {
         throw new ApiErrors(401, "Invalid Token Provided")
@@ -83,7 +83,45 @@ const handlerVerify = asyncHandler(async (req, res) => {
 })
 
 
-export { handleRegister, handlerVerify }
+const handleLogin = asyncHandler(async (req, res) => {
+
+    const { email, password } = req.body
+
+    if (!email || !password) {
+        throw new ApiErrors(400, "Email and Password is required")
+    }
+
+    const userDetails = await User.findOne({ email: email })
+
+    if (!userDetails) {
+        throw new ApiErrors(404, "User not found")
+    }
+
+    const matchPassword = userDetails.isPasswordCorrect(password)
+
+    if (!matchPassword) {
+        throw new ApiErrors(401, "Incorrect Password")
+    }
+    const { AccessToken, RefreshToken } = await generateAccessandRefreshToken(userDetails._id)
+
+    const UserData = User.findById({ id: userDetails._id }).select("- password -refreshToken -emailVerificationToken -emailVerificationExpiry")
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    res.status(200)
+        .cookie("accessToken", AccessToken)
+        .cookie("refreshToken", RefreshToken)
+        .json(
+            new ApiResponse(200, "User Logged in", {
+                data: UserData
+            })
+        )
+})
+
+
+export { handleRegister, handlerVerify,handleLogin }
 
 
 
