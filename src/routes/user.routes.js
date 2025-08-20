@@ -2,7 +2,7 @@ import express from "express"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { handleRegister, handlerVerify, handleLogin } from "../controllers/user.controller.js"
 import { ValidatorMiddleware } from "../middlewares/express.middleware.js"
-import { userRegisterValidation } from "../validators/index.js"
+import { userRegisterValidation } from "../validators/register.validation.js"
 
 const router = express.Router()
 
