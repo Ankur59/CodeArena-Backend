@@ -84,44 +84,38 @@ const handlerVerify = asyncHandler(async (req, res) => {
 
 
 const handleLogin = asyncHandler(async (req, res) => {
-
-    const { email, password } = req.body
+    const { email, password } = req.body;
 
     if (!email || !password) {
-        throw new ApiErrors(400, "Email and Password is required")
+        throw new ApiErrors(400, "Email and Password is required");
     }
 
-    const userDetails = await User.findOne({ email: email })
+    const userDetails = await User.findOne({ email });
 
     if (!userDetails) {
-        throw new ApiErrors(404, "User not found")
+        throw new ApiErrors(404, "User not found");
     }
 
-    const matchPassword = userDetails.isPasswordCorrect(password)
+    const matchPassword = await userDetails.isPasswordCorrect(password);
 
     if (!matchPassword) {
-        throw new ApiErrors(401, "Incorrect Password")
+        throw new ApiErrors(401, "Incorrect Password");
     }
-    const { AccessToken, RefreshToken } = await generateAccessandRefreshToken(userDetails._id)
 
-    const UserData = User.findById({ id: userDetails._id }).select("- password -refreshToken -emailVerificationToken -emailVerificationExpiry")
-    const options = {
-        httpOnly: true,
-        secure: true
-    }
+    const { AccessToken, RefreshToken } = await generateAccessandRefreshToken(userDetails._id);
+
+    const UserData = await User.findById(userDetails._id)
+        .select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
 
     res.status(200)
-        .cookie("accessToken", AccessToken)
-        .cookie("refreshToken", RefreshToken)
-        .json(
-            new ApiResponse(200, "User Logged in", {
-                data: UserData
-            })
-        )
-})
+        .cookie("accessToken", AccessToken, { httpOnly: true, secure: true })
+        .cookie("refreshToken", RefreshToken, { httpOnly: true, secure: true })
+        .json(new ApiResponse(200, "User Logged in", { data: UserData }));
+});
 
 
-export { handleRegister, handlerVerify,handleLogin }
+
+export { handleRegister, handlerVerify, handleLogin }
 
 
 
@@ -136,7 +130,39 @@ export { handleRegister, handlerVerify,handleLogin }
 
 
 
+// const handleLogin = asyncHandler(async (req, res) => {
 
+//     const { email, password } = req.body
 
-// ${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}
-// http://localhost:8000/api/v1/verify-email/<token>
+//     if (!email || !password) {
+//         throw new ApiErrors(400, "Email and Password is required")
+//     }
+
+//     const userDetails = await User.findOne({ email: email })
+
+//     if (!userDetails) {
+//         throw new ApiErrors(404, "User not found")
+//     }
+
+//     const matchPassword = await userDetails.isPasswordCorrect(password)
+
+//     if (!matchPassword) {
+//         throw new ApiErrors(401, "Incorrect Password")
+//     }
+//     const { AccessToken, RefreshToken } = await generateAccessandRefreshToken(userDetails._id)
+
+//     const UserData = User.findById(userDetails._id).select("- password -refreshToken -emailVerificationToken -emailVerificationExpiry")
+//     const options = {
+//         httpOnly: true,
+//         secure: true
+//     }
+
+//     res.status(200)
+//         .cookie("accessToken", AccessToken)
+//         .cookie("refreshToken", RefreshToken)
+//         .json(
+//             new ApiResponse(200, "User Logged in", {
+//                 data: UserData
+//             })
+//         )
+// })
