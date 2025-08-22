@@ -79,6 +79,16 @@ const handlerVerify = asyncHandler(async (req, res) => {
     if (!userData) {
         throw new ApiErrors(401, "Invalid Token Provided")
     }
+    const validity = (userData.emailVerificationExpiry > time)
+    console.log(validity)
+
+    if (!validity) {
+        throw new ApiErrors(401, "Token Expired")
+    }
+    if (validity) {
+        userData.isEmailVerified = true
+        userData.save({ validateBeforeSave: false })
+    }
     res.status(200).json(new ApiResponse(200, "Email Verification Complete"))
 })
 
@@ -95,14 +105,18 @@ const handleLogin = asyncHandler(async (req, res) => {
     if (!userDetails) {
         throw new ApiErrors(404, "User not found");
     }
-
     const matchPassword = await userDetails.isPasswordCorrect(password);
 
     if (!matchPassword) {
-        throw new ApiErrors(401, "Incorrect Password");
+        throw new ApiErrors(401, "Invalid credentials");
+    }
+
+    if (!userDetails.isEmailVerified) {
+        throw new ApiErrors(401, "Email not verified")
     }
 
     const { AccessToken, RefreshToken } = await generateAccessandRefreshToken(userDetails._id);
+
 
     const UserData = await User.findById(userDetails._id)
         .select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
@@ -116,53 +130,3 @@ const handleLogin = asyncHandler(async (req, res) => {
 
 
 export { handleRegister, handlerVerify, handleLogin }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const handleLogin = asyncHandler(async (req, res) => {
-
-//     const { email, password } = req.body
-
-//     if (!email || !password) {
-//         throw new ApiErrors(400, "Email and Password is required")
-//     }
-
-//     const userDetails = await User.findOne({ email: email })
-
-//     if (!userDetails) {
-//         throw new ApiErrors(404, "User not found")
-//     }
-
-//     const matchPassword = await userDetails.isPasswordCorrect(password)
-
-//     if (!matchPassword) {
-//         throw new ApiErrors(401, "Incorrect Password")
-//     }
-//     const { AccessToken, RefreshToken } = await generateAccessandRefreshToken(userDetails._id)
-
-//     const UserData = User.findById(userDetails._id).select("- password -refreshToken -emailVerificationToken -emailVerificationExpiry")
-//     const options = {
-//         httpOnly: true,
-//         secure: true
-//     }
-
-//     res.status(200)
-//         .cookie("accessToken", AccessToken)
-//         .cookie("refreshToken", RefreshToken)
-//         .json(
-//             new ApiResponse(200, "User Logged in", {
-//                 data: UserData
-//             })
-//         )
-// })

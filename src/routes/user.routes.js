@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { handleRegister, handlerVerify, handleLogin } from "../controllers/user.controller.js"
 import { ValidatorMiddleware } from "../middlewares/express.middleware.js"
 import { userRegisterValidation } from "../validators/register.validation.js"
+import { userLoginValidation } from "../validators/login.validation.js"
 
 const router = express.Router()
 
@@ -10,6 +11,6 @@ router.route("/register").post(userRegisterValidation(), ValidatorMiddleware, ha
 
 router.route("/verify-user/:id").post(handlerVerify)
 
-router.route("/login").post(handleLogin)
+router.route("/login").post(userLoginValidation(), ValidatorMiddleware, handleLogin)
 
 export default router
