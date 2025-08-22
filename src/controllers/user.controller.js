@@ -14,6 +14,7 @@ const generateAccessandRefreshToken = async (userId) => {
         const RefreshToken = user.generateRefreshToken()
         user.refreshToken = RefreshToken
         await user.save({ validateBeforeSave: false })
+        console.log("refresh token", RefreshToken)
         return { AccessToken, RefreshToken }
     }
     catch (error) {
@@ -123,8 +124,7 @@ const handleLogin = asyncHandler(async (req, res) => {
 
     res.status(200)
         .cookie("accessToken", AccessToken, { httpOnly: true, secure: true })
-        .cookie("refreshToken", RefreshToken, { httpOnly: true, secure: true })
-        .json(new ApiResponse(200, "User Logged in", { data: UserData }));
+        .json(new ApiResponse(200, "User Logged in", { userInfo: UserData, Access_Token: AccessToken }));
 });
 
 
