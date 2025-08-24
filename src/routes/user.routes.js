@@ -13,4 +13,6 @@ router.route("/verify-user/:id").post(handlerVerify)
 
 router.route("/login").post(userLoginValidation(), ValidatorMiddleware, handleLogin)
 
+
+
 export default router
