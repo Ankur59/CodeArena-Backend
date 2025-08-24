@@ -7,27 +7,23 @@ import jwt from "jsonwebtoken"
 const handleRefresh = asyncHandler(async (req, res) => {
     const token = req.cookies?.refreshToken
     if (!token) {
-        throw new ApiErrors(401, "No Token Provided")
+        throw new ApiErrors(401, "Invalid Token")
     }
 
-    let decoded
     try {
-        decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+        const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+        const user = await User.findById(decoded._id)
+        if (!user) {
+            throw new ApiErrors(401, "Invalid Token")
+        }
+        const AccessToken = user.generateAccessToken()
+        res
+            .status(200)
+            .cookie("accessToken", AccessToken, { httpOnly: true, secure: true })
+            .json(new ApiResponse(200, "Token Verified", { accessToken: AccessToken }))
     } catch (err) {
         throw new ApiErrors(401, "Invalid or expired refresh token");
     }
-
-    const user = await User.findById(decoded._id)
-    if (!user) {
-        throw new ApiErrors(401, "Invalid Token Data")
-    }
-
-    const AccessToken = user.generateAccessToken()
-
-    res
-        .status(200)
-        .cookie("accessToken", AccessToken, { httpOnly: true, secure: true })
-        .json(new ApiResponse(200, "Token Verified", { accessToken: AccessToken }))
 })
 
 

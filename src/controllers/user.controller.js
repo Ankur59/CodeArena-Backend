@@ -30,8 +30,7 @@ const handleRegister = asyncHandler(async (req, res) => {
     const existedUser = await User.findOne({ email })
 
     if (existedUser) {
-        throw new ApiErrors(409, "User already exist", []
-        )
+        throw new ApiErrors(409, "User already exist")
     }
 
     const user = await User.create({
@@ -75,13 +74,13 @@ const handlerVerify = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "No Token provided")
     }
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+
     const userData = await User.findOne({ emailVerificationToken: hashedToken })
 
     if (!userData) {
         throw new ApiErrors(401, "Invalid Token Provided")
     }
     const validity = (userData.emailVerificationExpiry > time)
-    console.log(validity)
 
     if (!validity) {
         throw new ApiErrors(401, "Token Expired")
@@ -128,6 +127,18 @@ const handleLogin = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, "User Logged in", { userInfo: UserData, AccessToken: AccessToken }));
 });
 
+const handleLogout = asyncHandler(async () => {
+    const user = findByIdAndUpdate(req.user._id,
+        {
+            $set: { refreshToken: "" }
+        }
+    )
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
 
+    return res.status(200).clearCookie("refreshToken", options).json(new ApiResponse(200, "Logged Out"))
+})
 
-export { handleRegister, handlerVerify, handleLogin }
+export { handleRegister, handlerVerify, handleLogin, handleLogout }
