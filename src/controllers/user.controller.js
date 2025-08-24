@@ -122,13 +122,14 @@ const handleLogin = asyncHandler(async (req, res) => {
         .select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
 
     res.status(200)
-        .cookie("accessToken", AccessToken, { httpOnly: true, secure: true })
         .cookie("refreshToken", RefreshToken, { httpOnly: true, secure: true })
         .json(new ApiResponse(200, "User Logged in", { userInfo: UserData, AccessToken: AccessToken }));
 });
 
-const handleLogout = asyncHandler(async () => {
-    const user = findByIdAndUpdate(req.user._id,
+// .cookie("accessToken", AccessToken, { httpOnly: true, secure: true })
+
+const handleLogout = asyncHandler(async (req, res) => {
+    const user = await User.findByIdAndUpdate(req.user._id,
         {
             $set: { refreshToken: "" }
         }
