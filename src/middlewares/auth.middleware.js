@@ -4,9 +4,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken"
 
 const authMiddleware = asyncHandler((async (req, res, next) => {
-    console.log(req.headers)
+    console.log("req.headers", req.headers)
     const token = req.headers['authorization']?.split(' ')[1]
-    console.log(token)
+    console.log("this", token)
     if (!token) {
         throw new ApiErrors(401, "No Token Provided")
     }
