@@ -5,11 +5,11 @@ import mongoose from "mongoose"
 
 
 const questionSchema = new mongoose.Schema({
-    questionId: {
-        type: String,
-        required: true,
-        unique: true
-    },
+    // questionId: {
+    //     type: String,
+    //     required: true,
+    //     unique: true
+    // },
     title: {
         type: String,
         required: true,
