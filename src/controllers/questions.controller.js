@@ -8,4 +8,7 @@ const handleAllQuestions = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(201, "Success", questions))
 })
 
-export { handleAllQuestions }
+const handleCreateQuestion = asyncHandler(async () => {
+
+})
+export { handleAllQuestions, handleCreateQuestion }
