@@ -1,3 +1,4 @@
+import QuestionDetails from "../models/questionDetails.model.js";
 import Question from "../models/questions.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -24,10 +25,29 @@ const handleCreateQuestion = asyncHandler(async (req, res) => {
         solution,
         topics,
         templates, } = req.body
-    // const question = Question.create({
-    //     title: title,
-    //     titleSlug: title.replace(" ", "-").toLowerCase()
-    // })
+console.log("now here")
+    const question = await Question.create({
+        title: title,
+        titleSlug: title.replaceAll(" ", "-").toLowerCase(),
+        difficulty: difficulty,
+        acRate: 0
+    })
+    console.log("hereeeee")
+    const questionDetails = await QuestionDetails.create({
+        QuestionId: question._id,
+        starterCode: starterCode,
+        companyTags: companyTags,
+        description: description,
+        timeLimit: timeLimit,
+        functionName: functionName,
+        params: params,
+        publicTestCase: publicTestCase,
+        privateTestCase: privateTestCase,
+        solution: solution,
+        topicsCovered: topics,
+        creatorId: req.user._id
+
+    })
     console.log(req.body)
 })
 export { handleAllQuestions, handleCreateQuestion }

@@ -4,11 +4,12 @@ import ApiErrors from "../../utils/ApiErrors.js";
 
 const errorMiddleware = (err, req, res, next) => {
 
+    console.log("this is error", err)
     if (err instanceof ApiErrors) {
         return res.status(err.statusCode).json({
             success: false,
             message: err.message,
-            errors: err.errors || [],  
+            errors: err.errors || [],
             stack: process.env.NODE_ENV === "development" ? err.stack : undefined
         });
     }

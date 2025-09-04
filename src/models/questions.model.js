@@ -1,15 +1,11 @@
 import mongoose from "mongoose"
-// import { number } from "zod"
-// import { required } from "zod/mini"
-// import { string } from "zod/mini"
 
 
 const questionSchema = new mongoose.Schema({
-    // questionId: {
-    //     type: String,
-    //     required: true,
-    //     unique: true
-    // },
+    questionId: {
+        type: String,
+        // unique: true
+    },
     title: {
         type: String,
         required: true,
@@ -35,12 +31,12 @@ const questionSchema = new mongoose.Schema({
 
 const Question = mongoose.model('question', questionSchema)
 
-questionSchema.pre("save", async function () {
-    if (this.isNew) {
-        const length = await mongoose.model("question").countDocuments()
-        this.questionId = length + 1
+questionSchema.pre("validate", async function () {
+    if (this.isNew && !this.questionId) {
+        const length = await mongoose.model("question").countDocuments();
+        this.questionId = String(length + 1);
     }
-})
+});
 
 
 export default Question

@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-import { array } from "zod";
-import { required } from "zod/mini";
 
 const questionDetailsSchema = new mongoose.Schema(
     {
@@ -55,7 +53,7 @@ const questionDetailsSchema = new mongoose.Schema(
             required: true
         },
         params: {
-            type: array,
+            type: Array,
             required: true
         },
         publicTestCase: {
