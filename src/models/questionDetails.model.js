@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { array } from "zod";
 import { required } from "zod/mini";
 
 const questionDetailsSchema = new mongoose.Schema(
@@ -8,28 +9,7 @@ const questionDetailsSchema = new mongoose.Schema(
             ref: "question",
             required: true,
         },
-        description: {
-            type: String,
-            required: true,
-        },
-        topicsCovered: {
-            type: [String], // array of strings
-            default: [],
-            required: true
-        },
-        creatorId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "user",
-            required: true,
-        },
-        timeLimit: {
-            type: Number, // in ms or seconds
-            required: true,
-        },
-        memoryLimit: {
-            type: Number, // in MB
-            required: true,
-        },
+        // template
         starterCode: {
             type: [
                 {
@@ -51,6 +31,31 @@ const questionDetailsSchema = new mongoose.Schema(
                     },
                 }
             ],
+            required: true
+        },
+
+        // company tags
+        companyTags: {
+            type: Array,
+            default: []
+        },
+        // description
+        description: {
+            type: String,
+            required: true,
+        },
+
+        // Time Limit
+        timeLimit: {
+            type: Number, // in ms or seconds
+            required: true,
+        },
+        functionName: {
+            type: String,
+            required: true
+        },
+        params: {
+            type: array,
             required: true
         },
         publicTestCase: {
@@ -101,6 +106,24 @@ const questionDetailsSchema = new mongoose.Schema(
             ),
             required: true,
         },
+
+        topicsCovered: {
+            type: [String], // array of strings
+            default: [],
+            required: true
+        },
+// stoop 
+        // Extra
+        creatorId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "user",
+            required: true,
+        },
+        // memoryLimit: {
+        //     type: Number, // in MB
+        //     required: true,
+        // },
+
 
     },
     { timestamps: true }
