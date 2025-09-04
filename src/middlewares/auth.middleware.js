@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken"
 
 const authMiddleware = asyncHandler((async (req, res, next) => {
+    
     console.log("req.headers", req.headers)
     const token = req.headers['authorization']?.split(' ')[1]
     console.log("this", token)
