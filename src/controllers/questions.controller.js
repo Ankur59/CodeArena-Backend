@@ -25,14 +25,13 @@ const handleCreateQuestion = asyncHandler(async (req, res) => {
         solution,
         topics,
         templates, } = req.body
-console.log("now here")
     const question = await Question.create({
         title: title,
         titleSlug: title.replaceAll(" ", "-").toLowerCase(),
         difficulty: difficulty,
         acRate: 0
     })
-    console.log("hereeeee")
+
     const questionDetails = await QuestionDetails.create({
         QuestionId: question._id,
         starterCode: starterCode,
@@ -48,6 +47,5 @@ console.log("now here")
         creatorId: req.user._id
 
     })
-    console.log(req.body)
 })
 export { handleAllQuestions, handleCreateQuestion }
