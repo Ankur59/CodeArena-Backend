@@ -26,6 +26,7 @@ const handleCreateQuestion = asyncHandler(async (req, res) => {
         topics,
         templates } = req.body
     const titleslug = title.replaceAll(" ", "-").toLowerCase()
+
     const question = await Question.create({
         title: title,
         titleSlug: titleslug,
@@ -60,10 +61,11 @@ const handleAllQuestionDetails = asyncHandler(asyncHandler(async (req, res) => {
     }
     const Details = await QuestionDetails.findOne({
         QuestionId: questionInfo._id
-    })
+    }).select(" -privateTestCase")
     if (!Details) {
         throw new ApiErrors(404, "Question not found")
     }
+    console.log("This is Details", Details)
     res.status(200).json(new ApiResponse(200, "Found", Details))
 }))
 export { handleAllQuestions, handleCreateQuestion, handleAllQuestionDetails }

@@ -1,4 +1,6 @@
+import { param } from "express-validator";
 import mongoose from "mongoose";
+import { required } from "zod/mini";
 
 const questionDetailsSchema = new mongoose.Schema(
     {
@@ -53,9 +55,19 @@ const questionDetailsSchema = new mongoose.Schema(
             required: true
         },
         params: {
-            type: Array,
-            required: true
+            type: [
+                {
+                    name: {
+                        type: String, required: true
+                    },
+                    type: {
+                        type: String, required: true
+                    }
+                }
+            ]
         },
+
+
         publicTestCase: {
             type: [
                 {
@@ -63,8 +75,27 @@ const questionDetailsSchema = new mongoose.Schema(
                         type: Number,
                         required: true
                     },
-                    input: {
-                        type: String,
+                    params: {
+                        type: [
+                            {
+                                id: {
+                                    type: Number,
+                                    required: true
+                                },
+                                param: {
+                                    type: String,
+                                    required: true
+                                },
+                                type: {
+                                    type: String,
+                                    required: true
+                                },
+                                value: {
+                                    type: String,
+                                    required: true
+                                }
+                            }
+                        ],
                         required: true
                     },
                     output: {
@@ -82,8 +113,27 @@ const questionDetailsSchema = new mongoose.Schema(
                         type: Number,
                         required: true
                     },
-                    input: {
-                        type: String,
+                    params: {
+                        type: [
+                            {
+                                id: {
+                                    type: Number,
+                                    required: true
+                                },
+                                param: {
+                                    type: String,
+                                    required: true
+                                },
+                                type: {
+                                    type: String,
+                                    required: true
+                                },
+                                value: {
+                                    type: String,
+                                    required: true
+                                }
+                            }
+                        ],
                         required: true
                     },
                     output: {
@@ -91,7 +141,8 @@ const questionDetailsSchema = new mongoose.Schema(
                         required: true
                     }
                 }
-            ]
+            ],
+            required: true
         },
         solution: {
             type: new mongoose.Schema(

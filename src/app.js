@@ -7,7 +7,9 @@ const app = express()
 
 app.use(cors({
     origin: process.env.CORS_ALLOW_ORIGIN,
-    credentials: true
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // allow methods
+    allowedHeaders: ["Content-Type", "Authorization"],
 }))
 app.use(cookieParser());
 // app.use(limiter)
