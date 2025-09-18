@@ -2,48 +2,33 @@ import QuestionDetails from "../models/questionDetails.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 function jsonChecker(str) {
+    if (typeof str !== "string") return str; // already proper type
     try {
-        // Attempt to parse the string as JSON
         return JSON.parse(str);
     } catch (e) {
-        // If parsing fails, return the original string
+        console.warn("⚠️ Invalid JSON format, returning raw:", str);
         return str;
     }
 }
 
-function serializeTestCases(testCases, inputParams) {
-    // Start the output string with the number of test cases.
-    let serializedString = testCases.length.toString() + "\n";
+function createJsSnippet(solution, params, testCases, functionName) {
+    return `
+    
+${solution}
 
-    testCases.forEach(testCase => {
-        // Handle each input parameter
-        inputParams.forEach(paramName => {
-            const value = testCase[paramName];
-            if (Array.isArray(value)) {
-                serializedString += value.join(" ") + "\n";
-            } else {
-                // Handle numbers, strings, etc.
-                serializedString += value.toString() + "\n";
-            }
-        });
+const testCases = ${JSON.stringify(testCases)};
 
-        // Handle the output
-        const output = testCase.output;
-        if (Array.isArray(output)) {
-            serializedString += output.join(" ") + "\n";
-        } else {
-            serializedString += output.toString() + "\n";
-        }
-
-        // Add a separator for the next test case.
-        serializedString += "-\n";
-    });
-
-    return serializedString;
+for (const tc of testCases) {
+  const args = [${params.map(p => `tc.${p}`).join(", ")}];
+  const result = ${functionName}(...args);
+  console.log(JSON.stringify(result));
+}
+`;
 }
 
 const handleRunCode = asyncHandler(async (req, res) => {
     const { sourceCode, label, languageCode, questionId } = req.body;
+
     const questionInfo = await QuestionDetails.findById(questionId);
 
     const params = questionInfo.params.map(item => item.name);
@@ -57,10 +42,17 @@ const handleRunCode = asyncHandler(async (req, res) => {
         return testCaseObj;
     });
 
-    const serialized = serializeTestCases(allPublicCases, params);
+    console.log("Normalized Test Cases:", allPublicCases);
 
-    // Now you can pass this 'serialized' string to the Judge0 API.
-    console.log("Serialized Test Cases:", serialized);
+    const functionName = questionInfo.functionName;
+
+
+    const runnerCode = createJsSnippet(sourceCode, params, allPublicCases, functionName);
+
+    console.log("Final Code to Send to Judge0:\n", runnerCode);
+
+    // // 🔹 Step 4 will be: send `runnerCode` to Judge0
+    // res.json({ runnerCode });
 });
 
-export { handleRunCode, serializeTestCases };
+export { handleRunCode };
