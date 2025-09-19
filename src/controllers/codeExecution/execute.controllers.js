@@ -5,6 +5,10 @@ import jsonChecker from "./jsonchecker.js";
 import createJsSnippet from "./snippetbuilder.js";
 import sendToJudge0RapidAPI from "./sendToJudge.js";
 
+
+
+
+
 const handleRunCode = asyncHandler(async (req, res) => {
     const { sourceCode, label, languageCode, questionId } = req.body;
 
@@ -29,7 +33,7 @@ const handleRunCode = asyncHandler(async (req, res) => {
 
     const response = await sendToJudge0RapidAPI(runnerCode)
 
-    console.log("This is reponse fix this", response)
+    console.log("This is reponse fix this", response.stdout)
 
 });
 

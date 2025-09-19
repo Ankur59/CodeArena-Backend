@@ -2,20 +2,24 @@ function createJsSnippet(solution, params, testCases, functionName) {
   return `
 
 ${solution}
-
+const results = [];
 const testCases = ${JSON.stringify(testCases)};
-let totalcase=1
 for (const [index, tc] of testCases.entries()) {
+
   const args = [${params.map(param => `tc.${param}`).join(", ")}];
   const result = ${functionName}(...args);
-  console.log(result);
-   if (JSON.stringify(result) !== JSON.stringify(tc.output)) {
-    throw new Error(\`Test case \${index + 1} failed.
-Expected: \${JSON.stringify(tc.output)}
-Got:      \${JSON.stringify(result)}\`);
-  }
-  console.log("this is test tc number", index + 1);
+  const isSuccess = JSON.stringify(result) === JSON.stringify(tc.output);
+  results.push({
+    input: args,
+    expected: tc.output,
+    got: result,
+    status: isSuccess ? "success" : "fail"
+  });
+  // console.log("this is results",results)
+
 }
+  console.log("results",results)
+  
 `;
 }
 
