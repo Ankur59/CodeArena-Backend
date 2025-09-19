@@ -31,8 +31,8 @@ const handleRunCode = asyncHandler(async (req, res) => {
 
     console.log("Normalized Test Cases:", allPublicCases);
 
-    const runnerCode = createJsSnippet(sourceCode, params, allPublicCases, functionName);
-
+    const runnerCode = createJsSnippet(sourceCode, params, allPublicCases, functionName, questionInfo.publicTestCase);
+    console.log(questionInfo.publicTestCase)
     const response = await sendToJudge0RapidAPI(runnerCode)
 
     if (!response) {
