@@ -2,7 +2,7 @@ function createJsSnippet(solution, params, testCases, functionName, rawTest) {
   return `
 
 ${solution}
-const rawTest=${JSON.stringify(rawTest)}
+const rawTest= ${JSON.stringify(rawTest)};
 const results = [];
 const testCases = ${JSON.stringify(testCases)};
 for (const [index, tc] of testCases.entries()) {
@@ -16,11 +16,8 @@ for (const [index, tc] of testCases.entries()) {
     got: result,
     status: isSuccess ? "success" : "fail"
   });
-  console.log("this is results",rawTest[index])
-  console.log("index",index)
-
 }
-  // console.log("results",results) uncomment this
+console.log(results)
   
 `;
 }
