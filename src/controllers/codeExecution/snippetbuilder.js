@@ -9,6 +9,7 @@ for (const [index, tc] of testCases.entries()) {
   const args = [${params.map(param => `tc.${param}`).join(", ")}];
   const result = ${functionName}(...args);
   const isSuccess = JSON.stringify(result) === JSON.stringify(tc.output);
+  console.log("llll",args)
   results.push({
     input: args,
     expected: tc.output,

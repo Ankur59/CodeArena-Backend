@@ -4,15 +4,17 @@ import fetch from 'node-fetch';
 import jsonChecker from "./jsonchecker.js";
 import createJsSnippet from "./snippetbuilder.js";
 import sendToJudge0RapidAPI from "./sendToJudge.js";
-
-
-
+import ApiErrors from "../../utils/ApiErrors.js";
+import ApiResponse from "../../utils/ApiResponse.js";
 
 
 const handleRunCode = asyncHandler(async (req, res) => {
     const { sourceCode, label, languageCode, questionId } = req.body;
 
     const questionInfo = await QuestionDetails.findById(questionId);
+    if (!questionId) {
+        throw new ApiErrors(404, "Invalid Question")
+    }
 
     const functionName = questionInfo.functionName;
 
@@ -33,7 +35,11 @@ const handleRunCode = asyncHandler(async (req, res) => {
 
     const response = await sendToJudge0RapidAPI(runnerCode)
 
-    console.log("This is reponse fix this", response.stdout)
+    if (!response) {
+        throw new ApiErrors(500, "Unable to execute code")
+    }
+    console.log(response)
+    res.status(200).json(new ApiResponse(200, "Execution Sucess", response))
 
 });
 
