@@ -31,10 +31,20 @@ const handleRunCode = asyncHandler(async (req, res) => {
 
     console.log("Normalized Test Cases:", allPublicCases);
     console.log("this is public cases", questionInfo.publicTestCase[0])
-    const runnerCode = createJsSnippet(sourceCode, params, allPublicCases, functionName, questionInfo.publicTestCase);
-    console.log(questionInfo.publicTestCase)
+    const clean = JSON.parse(JSON.stringify(questionInfo.publicTestCase, (key, value) =>
+        value === undefined ? null : value
+    ));
+    const runnerCode = createJsSnippet(
+        sourceCode,
+        params,
+        allPublicCases,
+        functionName,
+        clean
+    );
+    // console.log(questionInfo.publicTestCase)
+    // console.log("this is clean", clean)
     const response = await sendToJudge0RapidAPI(runnerCode)
-    console.log(response)
+    console.log("start",Array.isArray(response), "enddd")
     if (!response) {
         throw new ApiErrors(500, "Unable to execute code")
     }
@@ -43,3 +53,5 @@ const handleRunCode = asyncHandler(async (req, res) => {
 });
 
 export { handleRunCode };
+
+// const runnerCode = createJsSnippet(sourceCode, params, allPublicCases, functionName, questionInfo.publicTestCase);

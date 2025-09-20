@@ -5,6 +5,7 @@ ${solution}
 const rawTest= ${JSON.stringify(rawTest)};
 const results = [];
 const testCases = ${JSON.stringify(testCases)};
+
 for (const [index, tc] of testCases.entries()) {
 
   const args = [${params.map(param => `tc.${param}`).join(", ")}];
@@ -16,8 +17,11 @@ for (const [index, tc] of testCases.entries()) {
     got: result,
     status: isSuccess ? "success" : "fail"
   });
+
 }
-console.log(results)
+
+
+console.log(JSON.stringify(results));
   
 `;
 }

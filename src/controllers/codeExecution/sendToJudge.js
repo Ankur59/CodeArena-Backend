@@ -16,8 +16,17 @@ const sendToJudge0RapidAPI = async (runnerCode) => {
     });
 
     const data = await response.json();
-    return data; // contains stdout, status, etc.
+
+    let parsedResults = [];
+    try {
+        parsedResults = JSON.parse(data.stdout); // ✅ back into array
+    } catch (err) {
+        console.error("Failed to parse Judge0 stdout:", data.stdout);
+    }
+    console.log(Array.isArray(parsedResults))
+    return parsedResults; // ✅ send clean array to frontend
 };
+
 
 
 export default sendToJudge0RapidAPI
