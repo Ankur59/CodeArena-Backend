@@ -41,13 +41,13 @@ const handleRunCode = asyncHandler(async (req, res) => {
         functionName,
         clean
     );
-    // console.log(questionInfo.publicTestCase)
-    // console.log("this is clean", clean)
+
     const response = await sendToJudge0RapidAPI(runnerCode)
-    console.log("start",Array.isArray(response), "enddd")
+    console.log("start", Array.isArray(response), "enddd")
     if (!response) {
         throw new ApiErrors(500, "Unable to execute code")
     }
+    console.log("this is response", response)
     res.status(200).json(new ApiResponse(200, "Execution Sucess", response))
 
 });

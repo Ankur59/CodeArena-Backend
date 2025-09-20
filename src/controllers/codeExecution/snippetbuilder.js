@@ -20,7 +20,6 @@ for (const [index, tc] of testCases.entries()) {
 
 }
 
-
 console.log(JSON.stringify(results));
   
 `;

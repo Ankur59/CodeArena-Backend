@@ -17,16 +17,17 @@ const sendToJudge0RapidAPI = async (runnerCode) => {
 
     const data = await response.json();
 
-    console.log("this is full data", data)
-    let extradata=[data.time,data.memory,]
+    // console.log("this is full data", data)
+    let extradata = [data.time, data.memory,]
     let parsedResults = [];
     try {
         parsedResults = JSON.parse(data.stdout); // ✅ back into array
     } catch (err) {
         console.error("Failed to parse Judge0 stdout:", data.stdout);
+        return data.stdout
     }
     console.log(Array.isArray(parsedResults))
-    return parsedResults; // ✅ send clean array to frontend
+    return parsedResults;
 };
 
 
