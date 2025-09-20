@@ -13,8 +13,8 @@ for (const [index, tc] of testCases.entries()) {
   const isSuccess = JSON.stringify(result) === JSON.stringify(tc.output);
   results.push({
      input:rawTest[index],
-    expected: tc.output,
-    got: result,
+    expected: JSON.stringify(tc.output),
+    got: JSON.stringify(result) || "Empty",
     status: isSuccess ? "success" : "fail"
   });
 
