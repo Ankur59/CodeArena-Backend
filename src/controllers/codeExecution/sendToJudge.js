@@ -18,6 +18,7 @@ const sendToJudge0RapidAPI = async (runnerCode) => {
     const data = await response.json();
 
     // console.log("this is full data", data)
+    
     let extradata = [data.time, data.memory,]
     let parsedResults = [];
     try {

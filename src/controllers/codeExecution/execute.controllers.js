@@ -2,7 +2,7 @@ import QuestionDetails from "../../models/questionDetails.model.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import fetch from 'node-fetch';
 import jsonChecker from "./jsonchecker.js";
-import createJsSnippet from "./snippetbuilder.js";
+import { createJsSnippet, createJsSnippetSubmit } from "./snippetbuilder.js";
 import sendToJudge0RapidAPI from "./sendToJudge.js";
 import ApiErrors from "../../utils/ApiErrors.js";
 import ApiResponse from "../../utils/ApiResponse.js";
@@ -19,7 +19,6 @@ const handleRunCode = asyncHandler(async (req, res) => {
     const functionName = questionInfo.functionName;
 
     const params = questionInfo.params.map(item => item.name);
-    console.log("Input Parameters:", params);
 
     const allPublicCases = questionInfo.publicTestCase.map(testCase => {
         const testCaseObj = { output: jsonChecker(testCase.output) };
@@ -28,9 +27,6 @@ const handleRunCode = asyncHandler(async (req, res) => {
         });
         return testCaseObj;
     });
-
-    console.log("Normalized Test Cases:", allPublicCases);
-    console.log("this is public cases", questionInfo.publicTestCase[0])
     const clean = JSON.parse(JSON.stringify(questionInfo.publicTestCase, (key, value) =>
         value === undefined ? null : value
     ));
@@ -43,15 +39,55 @@ const handleRunCode = asyncHandler(async (req, res) => {
     );
 
     const response = await sendToJudge0RapidAPI(runnerCode)
-    console.log("start", Array.isArray(response), "enddd")
+
     if (!response) {
         throw new ApiErrors(500, "Unable to execute code")
     }
     console.log("this is response", response)
-    res.status(200).json(new ApiResponse(200, "Execution Sucess", response))
+    res.status(200).json(new ApiResponse(200, "Execution Success", response))
 
 });
 
-export { handleRunCode };
+const handleSubmitCode = asyncHandler(async (req, res) => {
+    const { sourceCode, label, languageCode, questionId } = req.body;
 
-// const runnerCode = createJsSnippet(sourceCode, params, allPublicCases, functionName, questionInfo.publicTestCase);
+    const questionInfo = await QuestionDetails.findById(questionId);
+
+    if (!questionId) {
+        throw new ApiErrors(404, "Invalid Question")
+    }
+
+    const functionName = questionInfo.functionName;
+
+    const params = questionInfo.params.map(item => item.name);
+
+    const allPrivateCases = questionInfo.
+        privateTestCase.map(testCase => {
+            const testCaseObj = { output: jsonChecker(testCase.output) };
+            testCase.params.forEach((param, idx) => {
+                testCaseObj[params[idx]] = jsonChecker(param.value);
+            });
+            return testCaseObj;
+        });
+
+    const clean = JSON.parse(JSON.stringify(questionInfo.publicTestCase, (key, value) =>
+        value === undefined ? null : value
+    ));
+    const runnerCode = createJsSnippetSubmit(
+        sourceCode,
+        params,
+        allPrivateCases,
+        functionName,
+        clean
+    )
+
+    const response = await sendToJudge0RapidAPI(runnerCode)
+
+    if (!response) {
+        throw new ApiErrors(500, "Unable to execute code")
+    }
+    res.status(200).json(new ApiResponse(200, "Executed", response))
+})
+
+export { handleRunCode, handleSubmitCode };
+
