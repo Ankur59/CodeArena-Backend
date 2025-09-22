@@ -49,6 +49,7 @@ const handleRunCode = asyncHandler(async (req, res) => {
 });
 
 const handleSubmitCode = asyncHandler(async (req, res) => {
+    console.log("coming")
     const { sourceCode, label, languageCode, questionId } = req.body;
 
     const questionInfo = await QuestionDetails.findById(questionId);
@@ -86,6 +87,7 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
     if (!response) {
         throw new ApiErrors(500, "Unable to execute code")
     }
+    console.log("gfg", response)
     res.status(200).json(new ApiResponse(200, "Executed", response))
 })
 

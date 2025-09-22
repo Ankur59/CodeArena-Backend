@@ -29,36 +29,43 @@ function createJsSnippetSubmit(solution, params, testCases, functionName, rawTes
   return `
 
 ${solution}
-const rawTest= ${JSON.stringify(rawTest)};
+const func=${JSON.stringify(solution)}
+const rawTest = ${JSON.stringify(rawTest)};
 const failed = [];
+const success = [];
 const testCases = ${JSON.stringify(testCases)};
 
 for (const [index, tc] of testCases.entries()) {
-
   const args = [${params.map(param => `tc.${param}`).join(", ")}];
   const result = ${functionName}(...args);
+
   const isSuccess = JSON.stringify(result) === JSON.stringify(tc.output);
-  if(!isSuccess){
-    failed.push(
-    { 
-    sucess:false,
-    input:rawTest[index],
-    total:testCases.length,
-    current:index+1,
-    expected: JSON.stringify(tc.output),
-    got: JSON.stringify(result) || "Empty",})
-  }
- break
-}
 
-  if(failed.length!=0){
+  if (!isSuccess) {
+    failed.push({
+      success: false,
+      input: rawTest[index],
+      total: testCases.length,
+      passed: index === 0 ? 0 : index - 1,
+      expected: JSON.stringify(tc.output),
+      got: JSON.stringify(result) || "Empty",
+      function:func
+    });
+    break; // stop at first failure
+  }
+} // for loop closing brace
+
+ if (failed.length > 0) {
   console.log(JSON.stringify(failed));
-}
-  else{
-    console.log("Congrats you got 6969 IQ level")
+ } 
+  else if (failed.length === 0) {
+  console.log(JSON.stringify([{success:true},func]));
   }
-  
-`;
-
+   else {
+  console.log(JSON.stringify({ message: "Something went wrong", failed, success }));
 }
+
+`;
+}
+
 export { createJsSnippetSubmit, createJsSnippet }
