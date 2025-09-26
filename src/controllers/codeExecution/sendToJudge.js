@@ -35,8 +35,8 @@ const sendToJudge0RapidAPI = async (runnerCode) => {
     }
     return {
         output: parsedResults,
-        time: parsedResults[0].success === true ? data.time : "Nahi bataunga",
-        memory: parsedResults[0].success === true ? data.memory : "first solve the question",
+        time: parsedResults[0].success === true ? String(data.time) : "N/A",
+        memory: parsedResults[0].success === true ? String(data.memory) : "N/A",
         status: data.status?.description || "Unknown"
     };
 };

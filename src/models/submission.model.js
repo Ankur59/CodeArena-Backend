@@ -14,11 +14,11 @@ const submissionSchema = new Schema({
         required: true
     },
     timeTaken: {
-        type: Number,
+        type: String,
         required: true,
     },
     memoryUsed: {
-        type: Number,
+        type: String,
         required: true
     },
     language: {

@@ -6,8 +6,11 @@ import { createJsSnippet, createJsSnippetSubmit } from "./snippetbuilder.js";
 import sendToJudge0RapidAPI from "./sendToJudge.js";
 import ApiErrors from "../../utils/ApiErrors.js";
 import ApiResponse from "../../utils/ApiResponse.js";
+import { Submissions } from "../../models/submission.model.js";
+import Performance from "../../models/performance.model.js";
+import { UserDetail } from "../../models/userDetails.model.js";
 
-
+// For running the code
 const handleRunCode = asyncHandler(async (req, res) => {
     const { sourceCode, label, languageCode, questionId } = req.body;
 
@@ -48,8 +51,10 @@ const handleRunCode = asyncHandler(async (req, res) => {
 
 });
 
+
+
+// For code submission
 const handleSubmitCode = asyncHandler(async (req, res) => {
-    console.log("coming")
     const { sourceCode, label, languageCode, questionId } = req.body;
 
     const questionInfo = await QuestionDetails.findById(questionId);
@@ -58,8 +63,7 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Invalid Question")
     }
 
-    const functionName = questionInfo.functionName;
-
+    // Serialization function
     const params = questionInfo.params.map(item => item.name);
 
     const allPrivateCases = questionInfo.
@@ -74,11 +78,13 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
     const clean = JSON.parse(JSON.stringify(questionInfo.publicTestCase, (key, value) =>
         value === undefined ? null : value
     ));
+    // Serialization function end
+
     const runnerCode = createJsSnippetSubmit(
         sourceCode,
         params,
         allPrivateCases,
-        functionName,
+        questionInfo.functionName,
         clean
     )
 
@@ -87,6 +93,42 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
     if (!response) {
         throw new ApiErrors(500, "Unable to execute code")
     }
+
+    // To record user first attempt
+    await UserDetail.updateOne({ id: req.user._id }, { $addToSet: { questionAttempted: questionId } })
+
+    // To record every submissions
+    const submission = await Submissions.create({
+        submittedBy: req.user._id,
+        questionId: questionId,
+        timeTaken: response.time || "N/A",
+        memoryUsed: response.memory || "N/A",
+        language: label,
+        sourceCode: sourceCode,
+        isPassed: response.output ? response.output[0].success : false,
+
+    })
+
+    const isSuccess = response.output ? response.output[0].success : false
+    // runtime in ms
+    const runTime = ((Number(response.time)) * 1000) || 0
+    // memory in bytes
+    const memory = ((Number(response.memory)) * 1024) || 0
+    console.log("judge time", response.time, "\n", "in ms:", runTime)
+    // Do this things if the submission has passed
+    if (isSuccess) {
+        await Performance.create({
+            questionId: questionId,
+            submittedBy: req.user._id,
+            runTimeMs: runTime,
+            memoryBytes: memory
+        })
+
+        await UserDetail.updateOne({ id: req.user._id }, {
+            $addToSet: { questionSolved: questionId }
+        })
+    }
+
     console.log("gfg", response)
     res.status(200).json(new ApiResponse(200, "Executed", response))
 })

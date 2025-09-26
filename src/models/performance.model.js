@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 // Define the schema for the Performance collection
 const performanceSchema = new mongoose.Schema({
@@ -32,4 +32,4 @@ performanceSchema.index({ questionId: 1, submittedBy: 1 });
 // Create and export the Mongoose model
 const Performance = mongoose.model('Performance', performanceSchema);
 
-module.exports = Performance;
+export default Performance

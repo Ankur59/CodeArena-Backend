@@ -103,12 +103,12 @@ const handleLogin = asyncHandler(async (req, res) => {
     const userDetails = await User.findOne({ email });
 
     if (!userDetails) {
-        throw new ApiErrors(404, "User not found");
+        throw new ApiErrors(404, "Invalid Username or Password");
     }
     const matchPassword = await userDetails.isPasswordCorrect(password);
 
     if (!matchPassword) {
-        throw new ApiErrors(401, "Invalid credentials");
+        throw new ApiErrors(401, "Invalid Username or Password");
     }
 
     if (!userDetails.isEmailVerified) {
