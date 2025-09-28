@@ -24,6 +24,7 @@ import errorMiddleware from "./middlewares/ErrorMiddleware/express.middleware.js
 import refreshRouter from "./routes/refresh.routes.js"
 import questionRouter from "./routes/question.routes.js"
 import executionRouter from "./routes/execute.routes.js"
+import usernameRouter from "./routes/username.routes.js"
 
 
 app.use("/api/v1/users", userRouter)
@@ -33,6 +34,8 @@ app.use("/api/v1/refresh", refreshRouter)
 app.use("/api/v1/questions", questionRouter)
 
 app.use("/api/v1/execute", executionRouter)
+
+app.use("/api/v1/username", usernameRouter)
 
 app.use(errorMiddleware)
 

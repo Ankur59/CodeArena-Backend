@@ -61,7 +61,7 @@ const handleRegister = asyncHandler(async (req, res) => {
     }
 
     return res.status(201).json(
-        new ApiResponse(200, "User created successfully and verification mail has been sent on your email")
+        new ApiResponse(200, 'Verification mail Sent')
     )
 })
 
