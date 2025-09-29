@@ -17,12 +17,17 @@ for (const [index, tc] of testCases.entries()) {
     got: JSON.stringify(result) || "Empty",
     status: isSuccess ? "success" : "fail"
   });
-
+// console.log("this is passed to the function",args[0])
+// console.log("this  was input",[...args])
 }
 console.log(JSON.stringify(results));
   
 `;
 }
+
+
+
+
 
 // function for final submit
 function createJsSnippetSubmit(solution, params, testCases, functionName, rawTest) {
@@ -40,7 +45,6 @@ for (const [index, tc] of testCases.entries()) {
   const result = ${functionName}(...args);
 
   const isSuccess = JSON.stringify(result) === JSON.stringify(tc.output);
-
   if (!isSuccess) {
     failed.push({
       success: false,
@@ -53,13 +57,14 @@ for (const [index, tc] of testCases.entries()) {
     });
     break; // stop at first failure
   }
-} // for loop closing brace
 
- if (failed.length > 0) {
-  console.log(JSON.stringify(failed));
+  
+} // for loop closing brace
+if (failed.length > 0) {
+  console.log("this is failed",JSON.stringify(failed));
  } 
   else if (failed.length === 0) {
-  console.log(JSON.stringify([{success:true},func]));
+  console.log("this is success",JSON.stringify([{success:true},func]));
   }
    else {
   console.log(JSON.stringify({ message: "Something went wrong", failed, success }));

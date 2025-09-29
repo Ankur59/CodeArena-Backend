@@ -6,7 +6,7 @@ import crypto from "crypto"
 const userSchema = new Schema({
     userName: {
         type: String,
-        // unique: true,  uncomment this after creating a uniques username in the register controller
+        unique: true,
         lowecase: true,
         trim: true,
         index: true

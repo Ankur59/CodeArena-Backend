@@ -37,6 +37,8 @@ app.use("/api/v1/execute", executionRouter)
 
 app.use("/api/v1/username", usernameRouter)
 
+// app.use("/api/v1/me", meRouter)
+
 app.use(errorMiddleware)
 
 export { app }

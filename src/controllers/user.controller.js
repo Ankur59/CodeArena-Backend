@@ -25,7 +25,7 @@ const generateAccessandRefreshToken = async (userId) => {
 
 const handleRegister = asyncHandler(async (req, res) => {
 
-    const { firstName, lastName, email, password } = req.body
+    const { firstName, userName, lastName, email, password } = req.body
 
     const existedUser = await User.findOne({ email })
 
@@ -33,9 +33,17 @@ const handleRegister = asyncHandler(async (req, res) => {
         throw new ApiErrors(409, "User already exist")
     }
 
+
+    const isUnique = await User.findOne({ userName });
+
+    if (!!isUnique) {
+        throw new ApiErrors(409, "Duplicate Username")
+    }
+
     const user = await User.create({
         firstName,
         lastName,
+        userName,
         email,
         password,
         isEmailVerified: false

@@ -9,12 +9,14 @@ import ApiResponse from "../../utils/ApiResponse.js";
 import { Submissions } from "../../models/submission.model.js";
 import Performance from "../../models/performance.model.js";
 import { UserDetail } from "../../models/userDetails.model.js";
+import Question from "../../models/questions.model.js";
 
 // For running the code
 const handleRunCode = asyncHandler(async (req, res) => {
     const { sourceCode, label, languageCode, questionId } = req.body;
 
     const questionInfo = await QuestionDetails.findById(questionId);
+
     if (!questionId) {
         throw new ApiErrors(404, "Invalid Question")
     }
@@ -24,12 +26,16 @@ const handleRunCode = asyncHandler(async (req, res) => {
     const params = questionInfo.params.map(item => item.name);
 
     const allPublicCases = questionInfo.publicTestCase.map(testCase => {
+
         const testCaseObj = { output: jsonChecker(testCase.output) };
         testCase.params.forEach((param, idx) => {
+            console.log("focus here ", JSON.parse(param.value))
             testCaseObj[params[idx]] = jsonChecker(param.value);
+            // console.log("zooom here", testCaseObj[params[idx]])
         });
         return testCaseObj;
     });
+    console.log("check here", allPublicCases)
     const clean = JSON.parse(JSON.stringify(questionInfo.publicTestCase, (key, value) =>
         value === undefined ? null : value
     ));
@@ -97,6 +103,8 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
     // To record user first attempt
     await UserDetail.updateOne({ id: req.user._id }, { $addToSet: { questionAttempted: questionId } })
 
+
+
     // To record every submissions
     const submission = await Submissions.create({
         submittedBy: req.user._id,
@@ -117,6 +125,15 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
     console.log("judge time", response.time, "\n", "in ms:", runTime)
     // Do this things if the submission has passed
     if (isSuccess) {
+        // to fetch difficulty
+        const questionHead = await Question.findById(questionInfo.QuestionId)
+        const difficultyLevel = questionHead.difficulty;
+        const fieldToIncrement = `solvedCounts.${difficultyLevel}`;
+        const updateOperation = {
+            $inc: {
+                [fieldToIncrement]: 1 // Increment the dynamically determined field by 1
+            }
+        };
         await Performance.create({
             questionId: questionId,
             submittedBy: req.user._id,
@@ -127,9 +144,12 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
         await UserDetail.updateOne({ id: req.user._id }, {
             $addToSet: { questionSolved: questionId }
         })
+        const result = await UserDetail.updateOne(
+            { id: req.user._id },
+            updateOperation
+        );
     }
 
-    console.log("gfg", response)
     res.status(200).json(new ApiResponse(200, "Executed", response))
 })
 

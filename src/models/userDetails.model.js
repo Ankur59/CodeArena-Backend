@@ -14,6 +14,21 @@ const userDetailSchema = new Schema({
         type: [mongoose.Schema.Types.ObjectId],
         ref: "questions"
     },
+    solvedCounts: {
+        easy: {
+            type: Number,
+            default: 0
+        },
+        medium: {
+            type: Number,
+            default: 0
+        },
+        hard: {
+            type: Number,
+            default: 0
+        }
+    },
+
     matchPlayed: {
         type: Number,
         default: 0
