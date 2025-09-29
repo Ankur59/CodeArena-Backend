@@ -61,10 +61,10 @@ for (const [index, tc] of testCases.entries()) {
   
 } // for loop closing brace
 if (failed.length > 0) {
-  console.log("this is failed",JSON.stringify(failed));
+  console.log(JSON.stringify(failed));
  } 
   else if (failed.length === 0) {
-  console.log("this is success",JSON.stringify([{success:true},func]));
+  console.log(JSON.stringify([{success:true},func]));
   }
    else {
   console.log(JSON.stringify({ message: "Something went wrong", failed, success }));

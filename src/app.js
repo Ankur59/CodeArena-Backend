@@ -25,7 +25,7 @@ import refreshRouter from "./routes/refresh.routes.js"
 import questionRouter from "./routes/question.routes.js"
 import executionRouter from "./routes/execute.routes.js"
 import usernameRouter from "./routes/username.routes.js"
-
+import profileRouter from "./routes/profile.routes.js"
 
 app.use("/api/v1/users", userRouter)
 
@@ -37,7 +37,7 @@ app.use("/api/v1/execute", executionRouter)
 
 app.use("/api/v1/username", usernameRouter)
 
-// app.use("/api/v1/me", meRouter)
+app.use("/api/v1/profile", profileRouter)
 
 app.use(errorMiddleware)
 

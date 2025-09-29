@@ -4,6 +4,7 @@ import ApiResponse from "../utils/ApiResponse.js"
 import { User } from "../models/user.model.js";
 import { sendEmail, verificatioMailContent } from "../utils/mailgen.js";
 import crypto from "crypto"
+import { UserDetail } from "../models/userDetails.model.js";
 
 
 
@@ -47,6 +48,10 @@ const handleRegister = asyncHandler(async (req, res) => {
         email,
         password,
         isEmailVerified: false
+    })
+    const userDetails = UserDetail.create({
+        userId: user._id,
+        
     })
 
     const { unHashedToken, hashedToken, tokenExpiry } = user.generateTemporaryToken()

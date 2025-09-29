@@ -29,13 +29,13 @@ const handleRunCode = asyncHandler(async (req, res) => {
 
         const testCaseObj = { output: jsonChecker(testCase.output) };
         testCase.params.forEach((param, idx) => {
-            console.log("focus here ", JSON.parse(param.value))
+
             testCaseObj[params[idx]] = jsonChecker(param.value);
-            // console.log("zooom here", testCaseObj[params[idx]])
+
         });
         return testCaseObj;
     });
-    console.log("check here", allPublicCases)
+
     const clean = JSON.parse(JSON.stringify(questionInfo.publicTestCase, (key, value) =>
         value === undefined ? null : value
     ));
@@ -52,7 +52,6 @@ const handleRunCode = asyncHandler(async (req, res) => {
     if (!response) {
         throw new ApiErrors(500, "Unable to execute code")
     }
-    console.log("this is response", response)
     res.status(200).json(new ApiResponse(200, "Execution Success", response))
 
 });
@@ -122,13 +121,16 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
     const runTime = ((Number(response.time)) * 1000) || 0
     // memory in bytes
     const memory = ((Number(response.memory)) * 1024) || 0
-    console.log("judge time", response.time, "\n", "in ms:", runTime)
+
     // Do this things if the submission has passed
     if (isSuccess) {
         // to fetch difficulty
         const questionHead = await Question.findById(questionInfo.QuestionId)
+
         const difficultyLevel = questionHead.difficulty;
+
         const fieldToIncrement = `solvedCounts.${difficultyLevel}`;
+
         const updateOperation = {
             $inc: {
                 [fieldToIncrement]: 1 // Increment the dynamically determined field by 1
@@ -144,10 +146,12 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
         await UserDetail.updateOne({ id: req.user._id }, {
             $addToSet: { questionSolved: questionId }
         })
+        console.log("getting here")
         const result = await UserDetail.updateOne(
             { id: req.user._id },
             updateOperation
         );
+        console.log("hreeee", result)
     }
 
     res.status(200).json(new ApiResponse(200, "Executed", response))
