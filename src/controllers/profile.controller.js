@@ -12,24 +12,23 @@ const handleGetFullProfile = asyncHandler(async (req, res) => {
         throw new ApiErrors(400, "Invalid user ID format.");
     }
 
-    const userInfo = await User.findById(userId).select("-password -__v");
+    const userInfo = await User.findById(userId).select("-_id -isEmailVerified -password -__v  -createdAt -updatedAt -emailVerificationExpiry -emailVerificationToken -refreshToken");
 
     if (!userInfo) {
         throw new ApiErrors(404, "User not found. Token may be invalid or expired.");
     }
 
-    const userExtraInfo = await UserDetail.findById(userId).select("-__v");
+    const userExtraInfo = await UserDetail.findOne({ userId }).select("_id -userId -createdAt -updatedAt -__v");
 
     if (!userExtraInfo) {
         throw new ApiErrors(404, "User profile details not found.");
     }
-
     const fullProfile = {
         ...userInfo.toObject(),
         details: userExtraInfo.toObject(),
     };
-
-    return res.status(200).json(new ApiResponse(200,fullProfile));
+    console.log(fullProfile)
+    return res.status(200).json(new ApiResponse(200, fullProfile));
 });
 
 export { handleGetFullProfile }

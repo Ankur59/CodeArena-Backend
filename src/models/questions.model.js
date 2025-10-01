@@ -1,10 +1,12 @@
 import mongoose from "mongoose"
 
 
+
 const questionSchema = new mongoose.Schema({
     questionId: {
         type: String,
-        // unique: true
+        unique: true,
+
     },
     title: {
         type: String,
@@ -28,15 +30,15 @@ const questionSchema = new mongoose.Schema({
     }
 
 })
-
-const Question = mongoose.model('question', questionSchema)
-
 questionSchema.pre("validate", async function () {
     if (this.isNew && !this.questionId) {
         const length = await mongoose.model("question").countDocuments();
         this.questionId = String(length + 1);
     }
 });
+const Question = mongoose.model('question', questionSchema)
+
+
 
 
 export default Question
