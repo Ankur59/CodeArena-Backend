@@ -5,11 +5,66 @@ import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const handleAllQuestions = asyncHandler(async (req, res) => {
-    const questions = await Question.find({})
-    console.log("this are questions", questions)
-    res.status(200).json(new ApiResponse(201, "Success", questions))
-})
+    const filterString = req.query.filter;
 
+    const LIMIT = 2; //Make it a bigger number in prod please 
+    let lastId = parseInt(req.query.lastId || '0');
+    let questions = [];
+    let queryExecuted = false;
+
+    // The filter is active if filterString is provided
+    const isFiltered = !!filterString;
+
+    while (questions.length === 0) {
+        let query = {
+            questionId: { $gt: lastId },
+        };
+
+        if (isFiltered) {
+            const filterArray = filterString.split(',');
+            query.tags = { $in: filterArray };
+        }
+
+        // Execute the query
+        const fetchedQuestions = await Question.find(query)
+            .limit(LIMIT)
+            .sort({ questionId: 1 })
+            .exec();
+
+        queryExecuted = true;
+        questions = fetchedQuestions;
+
+        if (questions.length > 0) {
+            break;
+        }
+
+        if (!isFiltered) {
+            break;
+        }
+        const checkQuery = {
+            questionId: { $gt: lastId }
+        };
+        const endCheck = await Question.findOne(checkQuery).exec();
+
+        if (!endCheck) {
+            break;
+        }
+        lastId += LIMIT;
+    }
+
+
+    // Determine the nextId based on the results found, or the lastId searched
+    const nextIndex = questions.length > 0 ? questions[questions.length - 1].questionId : lastId + (questions.length > 0 ? 0 : LIMIT);
+
+    // Ensure we don't accidentally set nextIndex back if the loop broke early
+    const finalNextId = questions.length > 0
+        ? questions[questions.length - 1].questionId
+        : lastId;
+
+
+    // Response
+    res.status(200).json(new ApiResponse(201, "Success", { questions: questions, nextId: finalNextId }));
+});
 
 const handleCreateQuestion = asyncHandler(async (req, res) => {
     console.log("here")

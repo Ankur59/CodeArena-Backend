@@ -6,7 +6,6 @@ const questionSchema = new mongoose.Schema({
     questionId: {
         type: String,
         unique: true,
-
     },
     title: {
         type: String,
@@ -27,6 +26,10 @@ const questionSchema = new mongoose.Schema({
         type: Number,
         min: 0,
         max: 100,
+    },
+    tags: {
+        type: [String],
+        required: true
     }
 
 })
