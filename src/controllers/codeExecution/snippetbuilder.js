@@ -17,16 +17,11 @@ for (const [index, tc] of testCases.entries()) {
     got: JSON.stringify(result) || "Empty",
     status: isSuccess ? "success" : "fail"
   });
-// console.log("this is passed to the function",args[0])
-// console.log("this  was input",[...args])
 }
 console.log(JSON.stringify(results));
   
 `;
 }
-
-
-
 
 
 // function for final submit

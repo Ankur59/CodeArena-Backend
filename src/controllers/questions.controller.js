@@ -11,7 +11,7 @@ const handleAllQuestions = asyncHandler(async (req, res) => {
     let lastId = parseInt(req.query.lastId || '0');
     let questions = [];
     let queryExecuted = false;
-
+    console.log("this is last id", lastId)
     // The filter is active if filterString is provided
     const isFiltered = !!filterString;
 
@@ -51,8 +51,6 @@ const handleAllQuestions = asyncHandler(async (req, res) => {
         }
         lastId += LIMIT;
     }
-
-
     // Determine the nextId based on the results found, or the lastId searched
     const nextIndex = questions.length > 0 ? questions[questions.length - 1].questionId : lastId + (questions.length > 0 ? 0 : LIMIT);
 

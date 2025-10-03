@@ -1,0 +1,81 @@
+import { asyncHandler } from "../utils/asyncHandler.js";
+import Performance from "../models/performance.model.js";
+import ApiErrors from "../utils/ApiErrors.js";
+import mongoose from "mongoose";
+import ApiResponse from "../utils/ApiResponse.js";
+
+async function runDynamicAggregation(userId, year, month) {
+    const pipeline = [
+        {
+            $match: {
+                submittedBy: userId,
+                $expr: {
+                    $and: [
+                        { $eq: [{ $year: "$createdAt" }, year] },
+                        { $eq: [{ $month: "$createdAt" }, month] }
+                    ]
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                questionId: 0,
+                submittedBy: 0,
+                runTimeMs: 0,
+                memoryBytes: 0,
+                __v: 0,
+            }
+        },
+
+        {
+            $group: {
+                _id: {
+                    submittedBy: "$submittedBy",
+                    year: { $year: "$createdAt" },
+                    day: { $dayOfMonth: "$createdAt" }
+                },
+                dailyEntry: { $first: "$$ROOT" }
+            }
+        },
+
+        {
+            $replaceRoot: {
+                newRoot: "$dailyEntry"
+            }
+        },
+
+        {
+            $sort: { createdAt: 1 }
+        }
+    ];
+
+    return await Performance.aggregate(pipeline);
+}
+const handleCalenderStreak = asyncHandler(async (req, res) => {
+    const { year, month } = req.body;
+
+    // Validate required parameters
+    if (!year || !month) {
+        throw new ApiErrors(400, "Year and Month is required")
+    }
+
+    // Validate year and month ranges
+    const yearNum = parseInt(year);
+    const monthNum = parseInt(month);
+
+    if (yearNum < 2000 || yearNum > 2100) {
+        throw new ApiErrors(400, "Year should be between 2000 and 2100")
+    }
+
+    if (monthNum < 1 || monthNum > 12) {
+        throw new ApiErrors(400, "Months should be between 1-12")
+    }
+    // console.log("year", yearNum, "month", monthNum)
+    const userId = req.user._id
+    // Run aggregation with dynamic parameters
+    const data = await runDynamicAggregation(userId, yearNum, monthNum);
+    res.status(200).json(new ApiResponse(200, "Found", { streak: data }))
+})
+
+export { handleCalenderStreak }
