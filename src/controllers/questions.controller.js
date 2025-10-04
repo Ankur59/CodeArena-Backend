@@ -7,7 +7,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 const handleAllQuestions = asyncHandler(async (req, res) => {
     const filterString = req.query.filter;
 
-    const LIMIT = 2; //Make it a bigger number in prod please 
+    const LIMIT = 5; //Make it a bigger number in prod please 
     let lastId = parseInt(req.query.lastId || '0');
     let questions = [];
     let queryExecuted = false;
@@ -112,13 +112,15 @@ const handleAllQuestionDetails = asyncHandler(asyncHandler(async (req, res) => {
     if (!questionInfo) {
         throw new ApiErrors(404, "Invalid Question")
     }
-    const Details = await QuestionDetails.findOne({
+    const details = await QuestionDetails.findOne({
         QuestionId: questionInfo._id
     }).select(" -privateTestCase")
-    if (!Details) {
+    if (!details) {
         throw new ApiErrors(404, "Question not found")
     }
-    console.log("This is Details", Details)
-    res.status(200).json(new ApiResponse(200, "Found", Details))
+    const basicInfo = await Question.findById(details.QuestionId).select("difficulty title questionId tags -_id")
+    console.log(basicInfo)
+    // console.log("This is Details", Details)
+    res.status(200).json(new ApiResponse(200, "Found", { Details: details, BasicInfo: basicInfo }))
 }))
 export { handleAllQuestions, handleCreateQuestion, handleAllQuestionDetails }

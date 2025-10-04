@@ -27,6 +27,7 @@ import executionRouter from "./routes/execute.routes.js"
 import usernameRouter from "./routes/username.routes.js"
 import profileRouter from "./routes/profile.routes.js"
 import streakRouter from "./routes/streak.routes.js"
+import listRouter from "./routes/list.routes.js"
 
 app.use("/api/v1/users", userRouter)
 
@@ -41,6 +42,9 @@ app.use("/api/v1/username", usernameRouter)
 app.use("/api/v1/profile", profileRouter)
 
 app.use("/api/v1/streak", streakRouter)
+
+
+app.use("api/v1/lists", listRouter)
 
 app.use(errorMiddleware)
 

@@ -1,7 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Performance from "../models/performance.model.js";
 import ApiErrors from "../utils/ApiErrors.js";
-import mongoose from "mongoose";
 import ApiResponse from "../utils/ApiResponse.js";
 
 async function runDynamicAggregation(userId, year, month) {
@@ -18,17 +17,6 @@ async function runDynamicAggregation(userId, year, month) {
             }
         },
         {
-            $project: {
-                _id: 0,
-                questionId: 0,
-                submittedBy: 0,
-                runTimeMs: 0,
-                memoryBytes: 0,
-                __v: 0,
-            }
-        },
-
-        {
             $group: {
                 _id: {
                     submittedBy: "$submittedBy",
@@ -44,7 +32,32 @@ async function runDynamicAggregation(userId, year, month) {
                 newRoot: "$dailyEntry"
             }
         },
+        {
 
+            $project: {
+
+                // FIX: When using an expression to create a field (like dayOfMonth),
+
+                // the projection must be in 'inclusion' mode. We only explicitly
+
+                // exclude '_id' and include 'dayOfMonth'. All other fields
+
+                // (questionId, runTimeMs, createdAt, etc.) are automatically excluded.
+
+
+                // Exclude the default MongoDB ID
+
+                _id: 0,
+
+
+
+                // Create the desired field containing only the day of the month
+
+                dayOfMonth: { $dayOfMonth: "$createdAt" }
+
+            }
+
+        },
         {
             $sort: { createdAt: 1 }
         }
@@ -75,6 +88,7 @@ const handleCalenderStreak = asyncHandler(async (req, res) => {
     const userId = req.user._id
     // Run aggregation with dynamic parameters
     const data = await runDynamicAggregation(userId, yearNum, monthNum);
+    console.log(data)
     res.status(200).json(new ApiResponse(200, "Found", { streak: data }))
 })
 
