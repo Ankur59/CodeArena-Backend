@@ -44,7 +44,7 @@ app.use("/api/v1/profile", profileRouter)
 app.use("/api/v1/streak", streakRouter)
 
 
-app.use("api/v1/lists", listRouter)
+app.use("/api/v1/lists", listRouter)
 
 app.use(errorMiddleware)
 

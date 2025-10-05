@@ -60,12 +60,11 @@ const handleAllQuestions = asyncHandler(async (req, res) => {
         : lastId;
 
 
-    // Response
+    console.log("this are questions",questions)
     res.status(200).json(new ApiResponse(201, "Success", { questions: questions, nextId: finalNextId }));
 });
 
 const handleCreateQuestion = asyncHandler(async (req, res) => {
-    console.log("here")
     const { title,
         difficulty,
         companyTags,
