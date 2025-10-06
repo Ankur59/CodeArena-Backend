@@ -3,6 +3,9 @@ import ApiErrors from "../utils/ApiErrors.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js"
 
+
+
+// Merge this with handleAlllist callign 2 contoller for almost same thing is bad
 const handleAllListNames = asyncHandler(async (req, res, next) => {
     if (!req.user || !req.user._id) {
         throw new ApiErrors(401, "Unauthorized access: User ID not found.");
@@ -61,4 +64,26 @@ const handleAddToList = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, "Question Added"))
 })
 
-export { handleAllListNames, handleCreateNewList, handleAddToList };
+const handleAllList = asyncHandler(async (req, res) => {
+    const userId = req.user._id
+
+    const lists = await ProblemList.find({ owner: userId }).select("title visibility")
+    console.log("vvv", lists)
+    res.status(201).json(new ApiResponse(201, lists))
+})
+
+
+const handleListDetails = asyncHandler(async (req, res) => {
+    const { listId } = req.query
+
+
+    const userId = req.user._id
+    console.log("this is id", listId)
+    const list = await ProblemList.findOne({ _id: listId, owner: userId }).populate('problems').select("-_id title description problems")
+
+    if (!list) {
+        throw new ApiErrors(404, "No list found")
+    }
+    res.status(200).json(new ApiResponse(200, "Data fetched", { info: list }))
+})
+export { handleAllListNames, handleCreateNewList, handleAddToList, handleAllList, handleListDetails };

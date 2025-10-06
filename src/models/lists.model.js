@@ -22,7 +22,7 @@ const ProblemListSchema = new mongoose.Schema({
     },
     problems: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'questions',
+        ref: 'question',
     }],
     visibility: {
         type: String,
