@@ -68,9 +68,14 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
         throw new ApiErrors(404, "Invalid Question")
     }
 
+    // Main key which is to be stored in records
+    const mainQuestionId = questionInfo.QuestionId
+
     // Serialization function
     const params = questionInfo.params.map(item => item.name);
 
+
+    // Serialization of testcases to pass to judge0
     const allPrivateCases = questionInfo.
         privateTestCase.map(testCase => {
             const testCaseObj = { output: jsonChecker(testCase.output) };
@@ -80,11 +85,14 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
             return testCaseObj;
         });
 
+
     const clean = JSON.parse(JSON.stringify(questionInfo.publicTestCase, (key, value) =>
         value === undefined ? null : value
     ));
     // Serialization function end
 
+
+    // runner code will contain the snippet received from this function
     const runnerCode = createJsSnippetSubmit(
         sourceCode,
         params,
@@ -93,21 +101,23 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
         clean
     )
 
+
+    // Code sent to judge0 for execution
     const response = await sendToJudge0RapidAPI(runnerCode)
 
     if (!response) {
         throw new ApiErrors(500, "Unable to execute code")
     }
 
-    // To record user first attempt
-    await UserDetail.updateOne({ id: req.user._id }, { $addToSet: { questionAttempted: questionId } })
+    // To record user first attempt as addto set only pushes the non pre exisiting values
+    await UserDetail.updateOne({ userId: req.user._id }, { $addToSet: { questionAttempted: mainQuestionId } })
 
 
 
     // To record every submissions
     const submission = await Submissions.create({
         submittedBy: req.user._id,
-        questionId: questionId,
+        questionId: mainQuestionId,
         timeTaken: response.time || "N/A",
         memoryUsed: response.memory || "N/A",
         language: label,
@@ -136,22 +146,24 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
                 [fieldToIncrement]: 1 // Increment the dynamically determined field by 1
             }
         };
+
+
         await Performance.create({
-            questionId: questionId,
+            questionId: mainQuestionId,
             submittedBy: req.user._id,
             runTimeMs: runTime,
             memoryBytes: memory
         })
 
-        await UserDetail.updateOne({ id: req.user._id }, {
-            $addToSet: { questionSolved: questionId }
+        await UserDetail.updateOne({ userId: req.user._id }, {
+            $addToSet: { questionSolved: mainQuestionId }
         })
-        console.log("getting here")
+
+
         const result = await UserDetail.updateOne(
-            { id: req.user._id },
+            { userId: req.user._id },
             updateOperation
         );
-        console.log("hreeee", result)
     }
 
     res.status(200).json(new ApiResponse(200, "Executed", response))

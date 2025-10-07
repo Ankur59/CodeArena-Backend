@@ -1,5 +1,7 @@
+import { getQuestionsWithSolvedFlag } from "../aggregations/question.aggregation.js";
 import QuestionDetails from "../models/questionDetails.model.js";
 import Question from "../models/questions.model.js";
+import { UserDetail } from "../models/userDetails.model.js";
 import ApiErrors from "../utils/ApiErrors.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -14,22 +16,27 @@ const handleAllQuestions = asyncHandler(async (req, res) => {
     console.log("this is last id", lastId)
     // The filter is active if filterString is provided
     const isFiltered = !!filterString;
+    const userId = req.user._id
+    console.log("this is user", userId)
+    const usedetails = await UserDetail.findOne({ userId: userId })
 
+
+    console.log("this is soved questions", usedetails.questionSolved)
     while (questions.length === 0) {
-        let query = {
-            questionId: { $gt: lastId },
-        };
 
-        if (isFiltered) {
-            const filterArray = filterString.split(',');
-            query.tags = { $in: filterArray };
-        }
+        let filterArray = []
+        if (isFiltered) { filterArray = filterString.split(','); }
+        console.log("this is filter array", filterArray)
+        const pipeline = getQuestionsWithSolvedFlag(usedetails.questionSolved, lastId, filterArray)
 
-        // Execute the query
-        const fetchedQuestions = await Question.find(query)
-            .limit(LIMIT)
-            .sort({ questionId: 1 })
-            .exec();
+        const fetchedQuestions = await Question.aggregate(pipeline)
+
+        console.log("this are fetched question", fetchedQuestions)
+
+        // const fetchedQuestions = await Question.find(query)
+        //     .limit(LIMIT)
+        //     .sort({ questionId: 1 })
+        //     .exec();
 
         queryExecuted = true;
         questions = fetchedQuestions;
@@ -60,7 +67,7 @@ const handleAllQuestions = asyncHandler(async (req, res) => {
         : lastId;
 
 
-    console.log("this are questions",questions)
+    console.log("this are questions", questions)
     res.status(200).json(new ApiResponse(201, "Success", { questions: questions, nextId: finalNextId }));
 });
 
