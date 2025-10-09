@@ -112,20 +112,41 @@ const handleCreateQuestion = asyncHandler(async (req, res) => {
 
 const handleAllQuestionDetails = asyncHandler(asyncHandler(async (req, res) => {
     const { slug } = req.query
+
     const questionInfo = await Question.findOne({
         titleSlug: slug
     })
+
     if (!questionInfo) {
         throw new ApiErrors(404, "Invalid Question")
     }
     const details = await QuestionDetails.findOne({
         QuestionId: questionInfo._id
+
     }).select(" -privateTestCase")
+
+
     if (!details) {
         throw new ApiErrors(404, "Question not found")
     }
-    const basicInfo = await Question.findById(details.QuestionId).select("difficulty title questionId tags -_id")
-    console.log(basicInfo)
+
+    // All fetching of question related info
+    const extraInfo = await Question.findById(details.QuestionId).select("difficulty title questionId tags -_id")
+
+    const isSolved = await UserDetail.findOne({ userId: req.user._id, questionSolved: details.QuestionId }).select("-_id questionSolved")
+
+    // console.log(!!isSolved)
+    console.log("these", details.companyTags)
+
+    const basicInfo = {
+        questionId: extraInfo.questionId || "0",
+        title: extraInfo.title || "Not found",
+        difficulty: extraInfo.difficulty || "unknown",
+        isSolved: !!isSolved || false,
+        tags: details.topicsCovered || ["no tags"],
+        companyTags: details.companyTags || ['Not found']
+
+    }
     // console.log("This is Details", Details)
     res.status(200).json(new ApiResponse(200, "Found", { Details: details, BasicInfo: basicInfo }))
 }))
