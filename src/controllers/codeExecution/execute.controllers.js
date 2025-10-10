@@ -14,8 +14,8 @@ import Question from "../../models/questions.model.js";
 // For running the code
 const handleRunCode = asyncHandler(async (req, res) => {
     const { sourceCode, label, languageCode, questionId } = req.body;
-
-    const questionInfo = await QuestionDetails.findById(questionId);
+    console.log("getting this question Id to search", questionId)
+    const questionInfo = await QuestionDetails.findOne({ QuestionId: questionId });
 
     if (!questionId) {
         throw new ApiErrors(404, "Invalid Question")
@@ -62,7 +62,7 @@ const handleRunCode = asyncHandler(async (req, res) => {
 const handleSubmitCode = asyncHandler(async (req, res) => {
     const { sourceCode, label, languageCode, questionId } = req.body;
 
-    const questionInfo = await QuestionDetails.findById(questionId);
+    const questionInfo = await QuestionDetails.findOne({ QuestionId: questionId });
 
     if (!questionId) {
         throw new ApiErrors(404, "Invalid Question")

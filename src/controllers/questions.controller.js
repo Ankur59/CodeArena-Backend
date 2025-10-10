@@ -126,6 +126,7 @@ const handleAllQuestionDetails = asyncHandler(asyncHandler(async (req, res) => {
     }).select(" -privateTestCase")
 
 
+    console.log("this is being sent", details)
     if (!details) {
         throw new ApiErrors(404, "Question not found")
     }
