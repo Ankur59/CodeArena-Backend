@@ -28,6 +28,7 @@ import usernameRouter from "./routes/username.routes.js"
 import profileRouter from "./routes/profile.routes.js"
 import streakRouter from "./routes/streak.routes.js"
 import listRouter from "./routes/list.routes.js"
+import activityRouter from "./routes/activity.routes.js"
 
 import submissionsRouter from "./routes/submissions.routes.js"
 app.use("/api/v1/users", userRouter)
@@ -47,6 +48,8 @@ app.use("/api/v1/streak", streakRouter)
 app.use("/api/v1/lists", listRouter)
 
 app.use("/api/v1/submissions", submissionsRouter)
+
+app.use("/api/v1/activity", activityRouter)
 
 app.use(errorMiddleware)
 

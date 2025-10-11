@@ -36,22 +36,7 @@ async function runDynamicAggregation(userId, year, month) {
 
             $project: {
 
-                // FIX: When using an expression to create a field (like dayOfMonth),
-
-                // the projection must be in 'inclusion' mode. We only explicitly
-
-                // exclude '_id' and include 'dayOfMonth'. All other fields
-
-                // (questionId, runTimeMs, createdAt, etc.) are automatically excluded.
-
-
-                // Exclude the default MongoDB ID
-
                 _id: 0,
-
-
-
-                // Create the desired field containing only the day of the month
 
                 dayOfMonth: { $dayOfMonth: "$createdAt" }
 

@@ -15,15 +15,15 @@ const userDetailSchema = new Schema({
         ref: "questions"
     },
     solvedCounts: {
-        easy: {
+        Easy: {
             type: Number,
             default: 0
         },
-        medium: {
+        Medium: {
             type: Number,
             default: 0
         },
-        hard: {
+        Hard: {
             type: Number,
             default: 0
         }

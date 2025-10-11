@@ -141,6 +141,7 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
 
         const fieldToIncrement = `solvedCounts.${difficultyLevel}`;
 
+        // if()
         const updateOperation = {
             $inc: {
                 [fieldToIncrement]: 1 // Increment the dynamically determined field by 1
@@ -154,16 +155,19 @@ const handleSubmitCode = asyncHandler(async (req, res) => {
             runTimeMs: runTime,
             memoryBytes: memory
         })
-
-        await UserDetail.updateOne({ userId: req.user._id }, {
+        
+        const questionUnique = await UserDetail.collection.updateOne({ userId: req.user._id }, {
             $addToSet: { questionSolved: mainQuestionId }
         })
+        
+        
+        if (questionUnique.modifiedCount === 1) {
+            const result = await UserDetail.updateOne(
+                { userId: req.user._id },
+                updateOperation
+            );
+        }
 
-
-        const result = await UserDetail.updateOne(
-            { userId: req.user._id },
-            updateOperation
-        );
     }
 
     res.status(200).json(new ApiResponse(200, "Executed", response))
